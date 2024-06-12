@@ -1,0 +1,81 @@
+|
+echo hi | echo | echo < file
+| echo oi
+| |
+| $
+| >
+>
+>>
+>>>
+<
+<<
+echo hi <
+cat    <| ls
+echo hi | >
+echo hi | > >>
+echo hi | < |
+echo hi |   |
+echo hi |  "|"
+|
+| echo oi
+|
+| echo oi
+>
+>>
+>>>
+<<<
+<
+<<
+echo hi <
+cat <| ls
+echo hi | >
+echo hi | > >>
+echo hi | < |
+echo hi | |
+echo hi | "|"
+echo hi >
+echo hi >>
+echo hi <
+echo hi <<
+echo >
+echo >>
+echo <
+echo <<
+echo hi < | cat
+echo hi <| cat
+echo hi << | cat
+echo | echo hi
+echo hi | cat | > file
+echo hi | cat | < file
+echo hi | cat | >> file
+cat < < file
+echo hi < > file
+echo hi > < file
+cat < | < file
+echo hi | echo > file
+echo hi | echo >> file
+echo hi | echo <
+echo hi | echo <<
+echo hi >
+echo hi > /
+echo hi |||
+| echo hi
+cat <<<
+> file
+echo hi > << stop
+echo hi >> << stop
+echo hi < >> file
+echo hi < > file
+echo hi | cat > < file
+echo hi | cat < > file
+echo hi | echo | cat < > file
+echo hi | echo > | cat
+echo hi | echo < | cat
+echo hi | echo >> | cat
+cat < < file
+echo hi | echo > <
+echo hi | echo < >
+echo hi | echo >> <
+echo hi | echo | echo > file
+echo hi | echo | echo < file
+echo hi | echo | echo >> file

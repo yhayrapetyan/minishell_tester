@@ -1,19 +1,23 @@
 #!/bin/bash
 
 MINISHELL_PATH="../minishell"
+TEST_CASE_PREFIX="test_cases/"
 
 # Run a specific test if the file name was specified
 if [[ $1 ]]; then
-	test_lists=(
-		$1
-	)
+    test_lists=(
+        "${TEST_CASE_PREFIX}$1"
+    )
 else
-	test_lists=(
-		"builtins"
-		"pipes"
-		"redirects"
-		"extras"
-	)
+    test_lists=(
+        "${TEST_CASE_PREFIX}syntax"
+        "${TEST_CASE_PREFIX}exit"
+        "${TEST_CASE_PREFIX}unset"
+        "${TEST_CASE_PREFIX}echo"
+        "${TEST_CASE_PREFIX}pipes"
+        "${TEST_CASE_PREFIX}redirects"
+        "${TEST_CASE_PREFIX}extras"
+    )
 fi
 
 if [[ $1 == "wildcards"  || $1 == "bonus" ]]; then
@@ -53,7 +57,7 @@ REMOVE_EXIT="grep -v ^exit$"
 for testfile in ${test_lists[*]}; do
 
 	printf $RED
-	echo ———————————— $testfile
+	echo "—————— ${testfile#$TEST_CASE_PREFIX}"
 
 	while read teste; do
 		((i++))
@@ -74,18 +78,21 @@ for testfile in ${test_lists[*]}; do
 
 		OUTFILES_DIFF=$(diff --brief ./mini_outfiles ./bash_outfiles)
 
-		printf $YELLOW
-		printf "Test %3s: " $i
+
 		if [[ "$MINI_OUTPUT" == "$BASH_OUTPUT" && "$MINI_EXIT_CODE" == "$BASH_EXIT_CODE" && -z "$OUTFILES_DIFF" ]]; then
-			printf ✅
+#			printf ✅
 			((ok++))
 			if [ "$MINI_ERROR_MSG" != "$BASH_ERROR_MSG" ]; then
+        printf "Test %3s: " $i
+        printf "$GREY $teste \n$END"
 				printf "⚠️ "
 			fi
 		else
+		  printf $YELLOW
+      printf "Test %3s: " $i
 			printf ❌
+		  printf "$GREY $teste \n$END"
 		fi
-		printf "$GREY $teste \n$END"
 		if [ "$OUTFILES_DIFF" ]; then
 			echo "$OUTFILES_DIFF"
 			echo mini outfiles:

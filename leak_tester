@@ -1,0 +1,145 @@
+#!/bin/bash
+
+MINISHELL_PATH="../minishell"
+TEST_CASE_PREFIX="test_cases/"
+
+# Run a specific test if the file name was specified
+if [[ $1 ]]; then
+    test_lists=(
+        "${TEST_CASE_PREFIX}$1"
+    )
+else
+    test_lists=(
+        "${TEST_CASE_PREFIX}syntax"
+        "${TEST_CASE_PREFIX}exit"
+        "${TEST_CASE_PREFIX}unset"
+        "${TEST_CASE_PREFIX}echo"
+        "${TEST_CASE_PREFIX}pipes"
+        "${TEST_CASE_PREFIX}redirects"
+        "${TEST_CASE_PREFIX}extras"
+    )
+fi
+
+if [[ $1 == "wildcards"  || $1 == "bonus" ]]; then
+	MINISHELL_PATH="../minishell_bonus"
+fi
+
+BOLD="\e[1m"
+YELLOW="\033[0;33m"
+GREY="\033[38;5;244m"
+PURPLE="\033[0;35m"
+BLUE="\033[0;36m"
+RED="\e[0;31m"
+END="\033[0m"
+
+
+PROMPT=$(echo -e "\nexit\n" | $MINISHELL_PATH | head -n 1 | sed "s/\x1B\[[0-9;]\{1,\}[A-Za-z]//g" )
+# Helper commands:
+REMOVE_COLORS="sed s/\x1B\[[0-9;]\{1,\}[A-Za-z]//g"
+REMOVE_EXIT="grep -v ^exit$"
+
+printf $YELLOW
+printf "\n This test is going to take about 3 minutes \n"
+printf $END
+
+for testfile in ${test_lists[*]}; do
+	while read teste; do
+		((i++))
+
+    for anim in '-' '\\' '|' '/'; do
+        printf $BLUE
+        echo -ne "\rRunning test ${testfile#$TEST_CASE_PREFIX} $anim"
+        sleep 0.1
+        printf $END
+    done
+
+		echo -e "$teste" | valgrind --suppressions=.vignore.supp --show-leak-kinds=all --leak-check=full  $MINISHELL_PATH > valgrind_output.txt 2>&1
+
+    def_lost=$(grep "definitely lost" valgrind_output.txt)
+    if [ -n "$def_lost" ]; then
+        while IFS= read -r line; do
+             if ! echo "$line" | grep -q "0 bytes in 0 blocks"; then
+                 printf "Test %3s: " $i
+                 printf ❌
+                 printf "$GREY $teste \n$END"
+                 printf $RED
+                 echo "  Memory leaks detected"
+                 printf $YELLOW
+                 echo "You can read log in valgrind_output.txt file"
+                 printf $END
+                 exit 1
+             fi
+        done <<< "$def_lost"
+    fi
+
+    def_lost=$(grep "indirectly lost" valgrind_output.txt)
+    if [ -n "$def_lost" ]; then
+        while IFS= read -r line; do
+             if ! echo "$line" | grep -q "0 bytes in 0 blocks"; then
+                 printf "Test %3s: " $i
+                 printf ❌
+                 printf "$GREY $teste \n$END"
+                 printf $RED
+                 echo "  Memory leaks detected"
+                 printf $YELLOW
+                 echo "You can read log in valgrind_output.txt file"
+                 printf $END
+                 exit 1
+             fi
+        done <<< "$def_lost"
+    fi
+
+    def_lost=$(grep "possibly lost" valgrind_output.txt)
+    if [ -n "$def_lost" ]; then
+        while IFS= read -r line; do
+             if ! echo "$line" | grep -q "0 bytes in 0 blocks"; then
+                 printf "Test %3s: " $i
+                 printf ❌
+                 printf "$GREY $teste \n$END"
+                 printf $RED
+                 echo "  Memory leaks detected"
+                 printf $YELLOW
+                 echo "You can read log in valgrind_output.txt file"
+                 printf $END
+                 exit 1
+             fi
+        done <<< "$def_lost"
+    fi
+
+#    def_lost=$(grep "still reachable" valgrind_output.txt)
+#    if [ -n "$def_lost" ]; then
+#        # Iterate over each line in def_lost
+#        while IFS= read -r line; do
+#             if ! echo "$line" | grep -q "0 bytes in 0 blocks"; then
+#                 printf "Test %3s: " $i
+#                 printf ⚠️
+#                 printf "$GREY $teste \n$END"
+#                 printf $RED
+#                 echo "  Memory leaks detected"
+#                 printf $YELLOW
+#                 echo "You can read log in valgrind_output.txt file"
+#                 printf $END
+#                 exit 1
+#             fi
+#        done <<< "$def_lost"
+#    fi
+
+    ((ok++))
+	done < $testfile
+done
+
+printf "\n"
+printf $PURPLE
+printf $BOLD
+echo   $ok/$i
+printf $END
+
+if [[ "$ok" == "$i" ]]; then
+	echo "🎊 🎊 🎊"
+	echo "😎 😎 😎"
+	echo "🎉 🎉 🎉"
+	exit 0
+else
+	echo "😭 😭 😭"
+	exit 1
+fi

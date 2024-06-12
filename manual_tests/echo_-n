@@ -1,0 +1,5 @@
+echo -n nenie_iri
+echo -nn nenie_iri
+echo -n -n -n nenie_iri
+echo "-n" nenie_iri
+echo "-nnnn" nenie_iri
