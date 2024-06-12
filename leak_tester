@@ -53,7 +53,7 @@ for testfile in ${test_lists[*]}; do
         printf $END
     done
 
-		echo -e "$teste" | valgrind --suppressions=.vignore.supp --show-leak-kinds=all --leak-check=full  $MINISHELL_PATH > valgrind_output.txt 2>&1
+		echo -e "$teste" | valgrind --suppressions=vignore.supp --show-leak-kinds=all --leak-check=full  $MINISHELL_PATH > valgrind_output.txt 2>&1
 
     def_lost=$(grep "definitely lost" valgrind_output.txt)
     if [ -n "$def_lost" ]; then
